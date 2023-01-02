@@ -206,3 +206,64 @@ const whereAmI = (lat, lng) => {
 whereAmI(52.508, 13.381);
 whereAmI(19.037, 72.873);
 whereAmI(-33.933, 18.474);
+
+
+import React from 'react';
+import axios from 'axios';
+
+const apiEndpoints = [
+{ name: 'API1', url: 'https://api.endpoint1.com/health' },
+{ name: 'API2', url: 'https://api.endpoint2.com/health' }
+];
+
+const Dashboard = () => {
+const [endpointHealth, setEndpointHealth] = useState([]);
+
+useEffect(() => {
+const getEndpointHealth = async () => {
+const healthPromises = apiEndpoints.map(endpoint => axios.get(endpoint.url));
+const healthResponses = await Promise.all(healthPromises);
+
+
+  const endpointHealth = healthResponses.map(response => ({
+    name: response.data.name,
+    url: response.data.url,
+    status: response.data.status,
+    checkTime: response.data.checkTime
+  }));
+
+  setEndpointHealth(endpointHealth);
+}
+
+getEndpointHealth();
+setInterval(getEndpointHealth, 1800000); // refresh every 30 minutes
+}, []);
+// return (
+<div className="container mx-auto px-4">
+<h1 className="text-3xl font-bold mb-4">API Health Dashboard</h1>
+<button onClick={() => getEndpointHealth()}>Refresh</button>
+<table className="table-auto">
+<thead>
+<tr>
+<th className="px-4 py-2">API Name</th>
+<th className="px-4 py-2">API URL</th>
+<th className="px-4 py-2">API Status</th>
+<th className="px-4 py-2">API Check Time</th>
+</tr>
+</thead>
+<tbody>
+{endpointHealth.map(endpoint => (
+<tr key={endpoint.name}>
+<td className="border px-4 py-2">{endpoint.name}</td>
+<td className="border px-4 py-2">{endpoint.url}</td>
+<td className="border px-4 py-2">{endpoint.status}</td>
+<td className="border px-4 py-2">{endpoint.checkTime}</td>
+</tr>
+))}
+</tbody>
+</table>
+</div>
+);
+};
+
+export default Dashboard;
